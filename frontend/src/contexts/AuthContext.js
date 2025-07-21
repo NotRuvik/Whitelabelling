@@ -39,7 +39,10 @@ export const AuthProvider = ({ children }) => {
       // verified the role. If the check failed, this code would never be reached.
       localStorage.setItem("authToken", token);
       localStorage.setItem("user", JSON.stringify(user));
-
+      // Set orgSlug for multi-tenancy
+      if (user.organizationId && user.organizationId.domainSlug) {
+        localStorage.setItem('orgSlug', user.organizationId.domainSlug);
+      }
       setToken(token);
       setUser(user);
 
@@ -63,6 +66,10 @@ export const AuthProvider = ({ children }) => {
         // Same logic as your regular login
         localStorage.setItem('authToken', token);
         localStorage.setItem('user', JSON.stringify(user));
+        // Set orgSlug for multi-tenancy
+        if (user.organizationId && user.organizationId.domainSlug) {
+          localStorage.setItem('orgSlug', user.organizationId.domainSlug);
+        }
         setToken(token);
         setUser(user);
         navigate('/dashboard');
