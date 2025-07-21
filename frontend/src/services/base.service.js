@@ -2,6 +2,7 @@ import axios from 'axios';
 import api from './api';
 const API_URL = '/bases';
 const getAuthToken = () => localStorage.getItem('authToken'); // Make sure 'authToken' is the key you use
+const getOrgSlug = () => localStorage.getItem('orgSlug');
 
 const apiClient = axios.create({
     baseURL: process.env.REACT_APP_API_BASE_URL,
@@ -11,6 +12,10 @@ apiClient.interceptors.request.use((config) => {
     const token = getAuthToken();
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+    }
+    const orgSlug = getOrgSlug();
+    if (orgSlug) {
+        config.headers['x-org-slug'] = orgSlug;
     }
     return config;
 }, (error) => {

@@ -2,14 +2,21 @@
 import axios from 'axios';
 
 const API_URL = '/organizations';
+const getOrgSlug = () => localStorage.getItem('orgSlug');
 
-// Setup axios instance with auth headers if you have a token
 const apiClient = axios.create({
     baseURL: process.env.REACT_APP_API_BASE_URL || '',
     headers: {
         'Content-Type': 'application/json',
-        // 'Authorization': `Bearer ${your_auth_token}` // Get token from your auth context
     }
+});
+
+apiClient.interceptors.request.use((config) => {
+    const orgSlug = getOrgSlug();
+    if (orgSlug) {
+        config.headers['x-org-slug'] = orgSlug;
+    }
+    return config;
 });
 
 

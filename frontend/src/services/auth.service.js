@@ -1,9 +1,18 @@
 import axios from 'axios';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const getOrgSlug = () => localStorage.getItem('orgSlug');
 
 const apiClient = axios.create({
     baseURL: API_BASE_URL,
+});
+
+apiClient.interceptors.request.use((config) => {
+    const orgSlug = getOrgSlug();
+    if (orgSlug) {
+        config.headers['x-org-slug'] = orgSlug;
+    }
+    return config;
 });
 
 /**
