@@ -1,0 +1,35 @@
+{
+  "name": "nightbright-sass-backend",
+  "version": "1.0.0",
+  "description": "A multi-tenant backend for the Night Bright platform.",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [
+    "saas",
+    "multitenant",
+    "express",
+    "mongodb"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.10.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "google-auth-library": "^10.1.0",
+    "joi": "^17.13.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.4.1",
+    "multer": "^2.0.1",
+    "nodemailer": "^6.9.13",
+    "stripe": "^15.8.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

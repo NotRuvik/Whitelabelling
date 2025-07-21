@@ -1,0 +1,346 @@
+/* Global Styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+  box-sizing: border-box;
+}
+
+/* Heading */
+.heading {
+  font-size: clamp(2rem, 5vw, 3.5rem); /* Responsive font size */
+  font-weight: bold !important;
+  font-family: sans-serif !important;
+  color: white;
+  line-height: 1.2;
+}
+
+@media (max-width: 480px) {
+  .heading {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+  }
+}
+
+/* Subheading */
+.subheading {
+  font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+  color: white;
+  line-height: 1.5;
+}
+
+@media (max-width: 480px) {
+  .subheading {
+    font-size: 0.8rem;
+  }
+}
+
+/* Yellow Button */
+.yellow-btn {
+  background-color: #FFD940 !important;
+  color: black !important;
+  font-weight: bold !important;
+  margin-right: 0.5rem !important;
+  border-radius: 8px !important;
+  text-transform: none !important;
+  padding: 0.5rem 1rem !important;
+  font-size: clamp(0.8rem, 2vw, 0.9rem) !important;
+}
+
+@media (max-width: 480px) {
+  .yellow-btn {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.7rem !important;
+  }
+}
+
+/* Purple Button */
+.purple-btn {
+  background-color: #A084E8 !important;
+  color: white !important;
+  font-weight: bold !important;
+  border-radius: 50px !important;
+  text-transform: none !important;
+  height: clamp(32px, 8vw, 40px) !important;
+  width: clamp(100px, 25vw, 120px) !important;
+  padding: 0.5rem 1rem !important;
+  font-size: clamp(0.8rem, 2vw, 0.9rem) !important;
+}
+
+@media (max-width: 480px) {
+  .purple-btn {
+    height: 32px !important;
+    width: 100px !important;
+    font-size: 0.7rem !important;
+  }
+}
+
+/* Navbar Container */
+.navbar-custom {
+  width: 100%;
+  background-color: #000;
+  color: white;
+  padding: clamp(0.5rem, 2vw, 0.75rem) clamp(1rem, 3vw, 2rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+  box-sizing: border-box;
+}
+
+/* Navbar Logo */
+.navbar-logo {
+  font-size: clamp(1.2rem, 3vw, 1.5rem);
+  letter-spacing: 2px;
+  font-weight: bold;
+}
+
+.navbar-logo .lightning {
+  color: #FFD940;
+}
+
+/* Navbar Links */
+.navbar-links {
+  display: flex;
+  gap: clamp(1rem, 2vw, 1.5rem);
+}
+.navbar-links .dropdown {
+  position: relative;
+}
+
+.navbar-links .dropdown:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* === DROPDOWN MENU === */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 16px 24px;
+  gap: 40px;
+  z-index: 1001;
+  white-space: nowrap;
+  min-width: 250px;
+
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.dropdown-menu a {
+  color: #333;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.dropdown-menu a:hover {
+  color: #d1a768;
+}
+.navbar-links a {
+  text-decoration: none;
+  color: white;
+  font-size: clamp(0.7rem, 2vw, 0.8rem);
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.navbar-links a:hover {
+  color: #d1a768;
+}
+@media (max-width: 768px) {
+  .navbar-links {
+    display: none;
+  }
+
+  .navbar-links.open {
+    display: flex;
+  }
+   .dropdown-menu {
+    position: static;
+    transform: none;
+    opacity: 1 !important;
+    visibility: visible !important;
+    flex-direction: column;
+    background: #000;
+    box-shadow: none;
+    padding: 0;
+    gap: 0;
+    min-width: unset;
+  }
+
+  .dropdown-menu a {
+    color: #fff;
+    padding: 0.5rem 0;
+    display: block;
+    text-align: left;
+  }
+
+  .dropdown-menu a:hover {
+    color: #d1a768;
+  }
+}
+/* Overlay to close menu on outside click */
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent; /* or rgba(0, 0, 0, 0.2) if you want dim effect */
+  z-index: 998;
+}
+
+/* Ensure hamburger is above overlay and menu */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: clamp(1.2rem, 3vw, 1.5rem);
+  cursor: pointer;
+  z-index: 1001;
+  position: relative;
+}
+
+/* Register Button */
+.register-btn {
+  padding: clamp(4px, 1vw, 6px) clamp(10px, 2vw, 14px);
+  background-color: #FFD940;
+  color: #000; /* Adjusted to black for contrast */
+  border-radius: 5px;
+  font-size: clamp(0.8rem, 2vw, 1rem);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.register-btn:hover {
+  background-color: #f8f8f8;
+  color: #FFD940;
+}
+
+/* Hamburger Menu */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: clamp(1.2rem, 3vw, 1.5rem);
+  cursor: pointer;
+}
+
+.hamburger-icon {
+  font-size: inherit;
+}
+
+/* Forum Image */
+.forumScreenImage {
+  width: 100%;
+  height: clamp(200px, 40vw, 300px);
+  border-radius: 8px;
+  object-fit: cover;
+  margin-left: 0; /* Removed fixed margin for responsiveness */
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .forumScreenImage {
+    margin-left: 20%;
+  }
+}
+
+/* Responsive Navbar */
+@media (max-width: 768px) {
+  .navbar-custom {
+    flex-wrap: wrap;
+    padding: 0.5rem 1rem;
+  }
+
+  .hamburger {
+    display: block;
+  }
+
+  .navbar-links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    background-color: #000;
+    padding: 1rem;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    z-index: 999;
+  }
+
+  .navbar-links.open {
+    display: flex;
+  }
+
+  .navbar-links a {
+    font-size: 1rem;
+    padding: 0.5rem 0;
+    text-align: center;
+  }
+
+  .navbar-register {
+    display: none; /* Hide register button on mobile, show in menu */
+  }
+
+  .navbar-links.open .register-btn {
+    display: block;
+    text-align: center;
+    margin: 1rem auto;
+    padding: 0.5rem 1rem;
+    width: fit-content;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-logo {
+    font-size: 1rem;
+  }
+
+  .hamburger-icon {
+    font-size: 1.2rem;
+  }
+
+  .navbar-links a {
+    font-size: 0.9rem;
+  }
+
+  .register-btn {
+    font-size: 0.9rem;
+    padding: 0.4rem 1rem;
+  }
+}
+
+/* Commented Styles (Retained as-is) */
+/* h6 {
+  font-weight: 600;
+}
+
+.selected-plan {
+  border: 2px solid #6c47ff;
+  background-color: #f4edff;
+}
+
+.plan-card:hover {
+  cursor: pointer;
+  border: 2px solid #b39ddb;
+} */
+ .main-content {
+  padding-top: 60px; /* matches your navbar height */
+  min-height: calc(100vh - 70px); /* optional: full height */
+  box-sizing: border-box;
+}
