@@ -9,7 +9,7 @@ const app = express();
 // 1. Define the list of allowed frontend domains (origins)
 const allowedOrigins = [
     'http://localhost:3000',             // Your main NPO/Admin frontend
-    'http://npo.localhost.com:3000'   // The new test domain for the missionary landing page
+    'http://ngnpo.localhost.com:3000'   // The new test domain for the missionary landing page
 ];
 
 // 2. Create the CORS configuration options

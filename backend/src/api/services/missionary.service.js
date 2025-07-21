@@ -323,7 +323,7 @@ const registerPublicMissionary = async (signupData) => {
 
   // 1. Hardcode the specific Organization ID
   // const organizationId = "685cf5ed94bfe8bda0b8d429"; // NightBirght missionary for (stym@yopmail.com)
-  const organizationId = "687744ce645d8deddd9579fd";
+  const organizationId = "687e629c6032e8851d08f897";
 
   //const baseId = '685e6c6367b81feff822e568';
   // 2. Check if a user with this email already exists

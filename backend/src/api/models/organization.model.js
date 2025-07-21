@@ -6,11 +6,6 @@ const organizationSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-            required: true,
-    },
     name: { type: String, required: true },
     domainSlug: { type: String, required: true, unique: true },
     logoUrl: String,
