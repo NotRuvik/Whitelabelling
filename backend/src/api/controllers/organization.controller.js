@@ -1,8 +1,18 @@
 const organizationService = require("../services/organization.service");
 const ApiResponse = require("../utils/apiResponse");
 const Organization = require("../models/organization.model");
+
+// Utility to validate DNS-safe slugs
+function isValidSlug(slug) {
+  return /^[a-z0-9]([a-z0-9-]{1,61}[a-z0-9])?$/.test(slug);
+}
+
 const addOrganization = async (req, res, next) => {
   try {
+    const { domainSlug } = req.body;
+    if (!isValidSlug(domainSlug)) {
+      return res.status(400).json({ message: "Invalid slug. Slug must be DNS-safe: lowercase letters, numbers, and hyphens only, 2-63 chars, cannot start or end with hyphen." });
+    }
     const newOrg = await organizationService.registerOrganization(req.body);
     res
       .status(201)

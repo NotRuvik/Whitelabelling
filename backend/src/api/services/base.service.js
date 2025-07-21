@@ -10,16 +10,17 @@ const { baseUserWelcomeWithCredentialsTemplate } = require('../utils/emailTempla
  * @param {object} baseData - Form data from the frontend.
  * @param {object} npoAdmin - The authenticated NPO admin creating the base user.
  */
-const registerNewBaseUser = async (baseData, npoAdmin) => {
+const registerNewBaseUser = async (baseData, npoAdmin, tenant) => {
     const { email, firstName, lastName, location } = baseData;
 
     if (await User.findOne({ email })) {
         throw new ApiError(409, `A user with the email ${email} already exists.`);
     }
 
-    const organization = await Organization.findById(npoAdmin.organizationId);
-    if (!organization) {
-        throw new ApiError(404, "The NPO admin's organization could not be found.");
+    // Use tenant context for organization
+    const organizationId = tenant?._id;
+    if (!organizationId) {
+        throw new ApiError(400, 'No organization context found.');
     }
 
     const tempPassword = crypto.randomBytes(8).toString('hex');
@@ -27,17 +28,17 @@ const registerNewBaseUser = async (baseData, npoAdmin) => {
         ...baseData,
         role: 'base_user',
         password: tempPassword,
-        organizationId: npoAdmin.organizationId,
+        organizationId,
     });
     await newBaseUser.save();
 
     // Send the welcome email with credentials
     sendEmail(
         newBaseUser.email,
-        `Your Base Manager Account for ${organization.name} is Ready`,
+        `Your Base Manager Account for ${tenant.name} is Ready`,
         baseUserWelcomeWithCredentialsTemplate({
             baseUserName: firstName,
-            npoName: organization.name,
+            npoName: tenant.name,
             loginEmail: newBaseUser.email,
             tempPassword: tempPassword,
         })

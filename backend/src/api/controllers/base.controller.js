@@ -6,7 +6,8 @@ const baseService = require('../services/base.service');
 const createBaseUser = async (req, res, next) => {
     try {
         // The service now handles all the logic
-        const newBaseUser = await baseService.registerNewBaseUser(req.body, req.user);
+        // Pass tenant context to the service
+        const newBaseUser = await baseService.registerNewBaseUser(req.body, req.user, req.tenant);
         res.status(201).json(new ApiResponse(201, newBaseUser, 'Base user created successfully.'));
     } catch (error) {
         next(error);
@@ -26,7 +27,11 @@ const createBaseUser = async (req, res, next) => {
 
 const getBasesForMyOrg = async (req, res, next) => {
     try {
-        const { organizationId } = req.user; 
+        // Use tenant context for organizationId
+        const organizationId = req.tenant?._id;
+        if (!organizationId) {
+            throw new ApiError(400, 'No organization context found.');
+        }
         const { page = 1, limit = 10, search = '' } = req.query; 
 
         const basesData = await baseService.getAllBasesForOrg({
