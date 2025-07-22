@@ -2,10 +2,8 @@ import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
-  Paper,
   TextField,
   InputAdornment,
-  CircularProgress,
   Autocomplete,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
@@ -14,6 +12,8 @@ import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import api from "../services/api";
 import GenericTable from "../genricCompoennts/GenericTable"; 
 import { StatusPill } from "../genricCompoennts/CustomTableParts";
+import { fetchOrganizations } from '../services/organizationService';
+import { getMissionaries } from '../services/missionary.service';
 
 const PaymentsPage = () => {
   const [data, setData] = useState([]);
@@ -23,16 +23,58 @@ const PaymentsPage = () => {
     totalCount: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [npoList, setNpoList] = useState([]);
+  const [selectedNpo, setSelectedNpo] = useState(null);
   const [missionaries, setMissionaries] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [selectedMissionary, setSelectedMissionary] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     search: "",
     page: 1,
     sortBy: "date",
     sortOrder: "desc",
     missionaryId: "",
+    npoId: "",
   });
+  const [userRole, setUserRole] = useState(null);
+
+  // Get user role from localStorage
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    setUserRole(user?.role || null);
+  }, []);
+
+  // Fetch NPOs for super_admin
+  useEffect(() => {
+    if (userRole === 'super_admin') {
+      fetchOrganizations(1, 1000).then(res => {
+        const npos = res.data.data.data || [];
+        setNpoList(npos);
+      }).catch(() => setNpoList([]));
+    }
+  }, [userRole]);
+
+  // Fetch missionaries for filter dropdown
+  useEffect(() => {
+    if (userRole === 'super_admin') {
+      if (selectedNpo) {
+        // Fetch missionaries for selected NPO
+        getMissionaries({ organizationId: selectedNpo._id }).then(res => {
+          setMissionaries(res.data.data || []);
+        }).catch(() => setMissionaries([]));
+      } else {
+        // Fetch all missionaries
+        api.get('/missionaries/list').then(res => {
+          setMissionaries(res.data.data || []);
+        }).catch(() => setMissionaries([]));
+      }
+    } else {
+      // For NPO admin, fetch missionaries for their org
+      api.get('/missionaries/list').then(res => {
+        setMissionaries(res.data.data || []);
+      }).catch(() => setMissionaries([]));
+    }
+  }, [userRole, selectedNpo]);
 
   // Delayed search term update
   useEffect(() => {
@@ -51,18 +93,16 @@ const PaymentsPage = () => {
     }));
   }, [selectedMissionary]);
 
-  // Fetch missionaries for filter dropdown
+  // Filter update on NPO select (super_admin only)
   useEffect(() => {
-    const fetchMissionaries = async () => {
-      try {
-        const response = await api.get("/missionaries/list");
-        setMissionaries(response.data);
-      } catch (error) {
-        console.error("Failed to fetch missionaries:", error);
-      }
-    };
-    fetchMissionaries();
-  }, []);
+    setFilters((prev) => ({
+      ...prev,
+      npoId: selectedNpo ? selectedNpo._id : "",
+      page: 1,
+      missionaryId: "", // Reset missionary filter when NPO changes
+    }));
+    setSelectedMissionary(null);
+  }, [selectedNpo]);
 
   // Fetch paginated & filtered payment data
   useEffect(() => {
@@ -103,7 +143,6 @@ const PaymentsPage = () => {
     setSearchTerm(value);
   };
 
-
   const columns = [
     {
       field: "date",
@@ -139,14 +178,12 @@ const PaymentsPage = () => {
   ];
 
   return (
-    <Box
-    >
+    <Box>
       <Typography variant="h4" gutterBottom fontWeight="bold">
         Ministry Payments
       </Typography>
       <Typography color="text.secondary" sx={{ mb: 3 }}>
-        A history of all donations. Use the filters to search by donor or narrow
-        by missionary.
+        A history of all donations. Use the filters to search by donor, NPO, or missionary.
       </Typography>
 
       {/* Table */}
@@ -165,9 +202,7 @@ const PaymentsPage = () => {
         actions={actions}
         showSearchBar={false}
         customFilters={
-          <Box
-            sx={{ display: "flex", gap: 2, flexWrap: "wrap", width: "100%" }}
-          >
+          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", width: "100%" }}>
             <TextField
               variant="outlined"
               placeholder="Search by Donor Name..."
@@ -184,12 +219,34 @@ const PaymentsPage = () => {
               }}
               sx={{ flex: "1 1 300px" }}
             />
+            {userRole === 'super_admin' && (
+              <Autocomplete
+                options={npoList}
+                getOptionLabel={(option) => option.name}
+                value={selectedNpo}
+                onChange={(event, newValue) => setSelectedNpo(newValue)}
+                isOptionEqualToValue={(option, value) => option._id === value?._id}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Filter by NPO"
+                    size="small"
+                    variant="outlined"
+                    InputProps={{
+                      ...params.InputProps,
+                      sx: { borderRadius: "8px" },
+                    }}
+                  />
+                )}
+                sx={{ flex: "1 1 300px" }}
+              />
+            )}
             <Autocomplete
               options={missionaries}
               getOptionLabel={(option) => option.name}
               value={selectedMissionary}
               onChange={(event, newValue) => setSelectedMissionary(newValue)}
-              isOptionEqualToValue={(option, value) => option._id === value._id}
+              isOptionEqualToValue={(option, value) => option._id === value?._id}
               renderInput={(params) => (
                 <TextField
                   {...params}
