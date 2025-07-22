@@ -112,16 +112,46 @@ const listMyPayments = async (user, queryParams) => {
  * @returns {Promise<object>} A promise that resolves to the paginated list of donations.
  */
 const listAllPayments = async (queryParams) => {
-    const { page = 1, limit = 10, search = '', sortBy = 'createdAt', sortOrder = 'desc', missionaryId } = queryParams;
+    const { page = 1, limit = 10, search = '', sortBy = 'createdAt', sortOrder = 'desc', missionaryId, npoId } = queryParams;
 
     const pageNum = parseInt(page, 10);
     const limitNum = parseInt(limit, 10);
     const skip = (pageNum - 1) * limitNum;
 
     const matchStage = { status: 'succeeded' };
-    
+
+    // Filtering logic
+    let missionaryObjIds = [];
+    let causeIds = [];
+
+    if (npoId && mongoose.Types.ObjectId.isValid(npoId)) {
+        // Get all missionaries under this NPO
+        missionaryObjIds = await Missionary.find({ organizationId: npoId })
+            .select('_id')
+            .lean()
+            .then(missionaries => missionaries.map(m => m._id));
+        // Get all causes under these missionaries
+        causeIds = await Cause.find({ missionaryId: { $in: missionaryObjIds } })
+            .select('_id')
+            .lean()
+            .then(causes => causes.map(c => c._id));
+    }
+
     if (missionaryId && mongoose.Types.ObjectId.isValid(missionaryId)) {
         const missionaryObjId = new mongoose.Types.ObjectId(missionaryId);
+        // If npoId is also provided, ensure missionary is under that NPO
+        if (npoId && missionaryObjIds.length > 0 && !missionaryObjIds.some(id => id.equals(missionaryObjId))) {
+            // missionaryId not under selected NPO, return empty
+            return {
+                data: [],
+                pagination: {
+                    currentPage: pageNum,
+                    totalPages: 0,
+                    totalCount: 0,
+                },
+            };
+        }
+        // Get all causes for this missionary
         const missionaryCauseIds = await Cause.find({ missionaryId: missionaryObjId })
             .select('_id')
             .lean()
@@ -130,8 +160,14 @@ const listAllPayments = async (queryParams) => {
             { targetType: 'Missionary', targetId: missionaryObjId },
             { targetType: 'Cause', targetId: { $in: missionaryCauseIds } }
         ];
+    } else if (npoId && missionaryObjIds.length > 0) {
+        // Only npoId provided: all missionaries/causes under this NPO
+        matchStage.$or = [
+            { targetType: 'Missionary', targetId: { $in: missionaryObjIds } },
+            { targetType: 'Cause', targetId: { $in: causeIds } }
+        ];
     }
-    
+
     if (search) {
         const searchRegex = new RegExp(search, 'i');
         const searchCondition = { $or: [{ donorName: searchRegex }, { donorEmail: searchRegex }] };
@@ -155,10 +191,7 @@ const listAllPayments = async (queryParams) => {
         { $lookup: { from: 'missionaries', localField: 'resolvedMissionaryId', foreignField: '_id', as: 'missionaryInfo' } },
         { $unwind: { path: '$missionaryInfo', preserveNullAndEmptyArrays: true } },
         { $lookup: { from: 'users', localField: 'missionaryInfo.userId', foreignField: '_id', as: 'userInfo' } },
-
-        // ✅ THIS IS THE CORRECTED LINE
         { $unwind: { path: '$userInfo', preserveNullAndEmptyArrays: true } },
-        
         {
             $project: {
                 _id: 1,
